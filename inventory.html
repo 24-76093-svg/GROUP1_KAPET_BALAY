@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kape't Balay - Inventory</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background: #f8f5eb;
+    color: #302a25;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 248px;
+    min-height: 100vh;
+    background: #3c281e;
+    color: white;
+    padding: 25px 14px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+    padding: 0 10px;
+    margin-bottom: 36px;
+}
+
+.role {
+    padding: 0 12px;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.nav a {
+    display: block;
+    padding: 14px 12px;
+    color: white;
+    text-decoration: none;
+    border-radius: 9px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.nav a.active,
+.nav a:hover {
+    background: #a9571c;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 12px;
+    font-size: 13px;
+    color: #e4d9d0;
+}
+
+/* MAIN CONTENT */
+.main {
+    flex: 1;
+    padding: 28px 32px;
+    min-width: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 28px;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 9px;
+    padding: 12px 17px;
+    font-size: 14px;
+}
+
+.logout {
+    background: white;
+    border: 1px solid #d8d0c5;
+    color: #302a25;
+}
+
+/* DASHBOARD CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 17px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e5dfd5;
+    border-radius: 13px;
+    padding: 18px;
+    min-height: 88px;
+}
+
+.card p {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 4px;
+}
+
+.card h2 {
+    font-size: 30px;
+}
+
+.low-number { color: #94600e; }
+.out-number { color: #a52c21; }
+
+/* ALERT */
+.alert {
+    background: #ffe8b2;
+    color: #684b15;
+    padding: 13px 16px;
+    border-radius: 9px;
+    margin-bottom: 17px;
+    font-size: 14px;
+}
+
+/* SEARCH AND ADD */
+.toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.search {
+    flex: 1;
+    padding: 13px 14px;
+    border: 1px solid #d9d2c9;
+    border-radius: 9px;
+    outline: none;
+    font-size: 14px;
+    min-width: 0;
+}
+
+.search:focus {
+    border-color: #a9571c;
+}
+
+.add-btn {
+    background: #a9571c;
+    color: white;
+    font-weight: bold;
+}
+
+.add-btn:hover {
+    background: #854313;
+}
+
+/* TABLE */
+.table-container {
+    background: white;
+    border: 1px solid #e5dfd5;
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 680px;
+}
+
+th, td {
+    padding: 14px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9e5df;
+    font-size: 14px;
+}
+
+th {
+    color: #5e554c;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.status {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.in-stock {
+    background: #d8eee1;
+    color: #285d3d;
+}
+
+.low-stock {
+    background: #ffedbd;
+    color: #80560d;
+}
+
+.out-stock {
+    background: #f5d8d5;
+    color: #94332b;
+}
+
+.actions {
+    white-space: nowrap;
+}
+
+.edit-btn {
+    background: #e9e0d4;
+    color: #49372a;
+    padding: 7px 10px;
+    margin-right: 4px;
+}
+
+.delete-btn {
+    background: #f5d8d5;
+    color: #94332b;
+    padding: 7px 10px;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    z-index: 10;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    padding: 25px;
+    border-radius: 14px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d9d2c9;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.cancel-btn {
+    background: #eee9e2;
+    color: #333;
+}
+
+.save-btn {
+    background: #a9571c;
+    color: white;
+}
+
+@media(max-width: 750px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .main {
+        padding: 20px 15px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 500px) {
+    body {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .logo {
+        margin-bottom: 15px;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .nav a {
+        margin: 0;
+    }
+
+    .toolbar {
+        flex-wrap: wrap;
+    }
+
+    .search {
+        flex-basis: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">Kape't Balay</div>
+
+    <div class="role">Admin</div>
+
+    <nav class="nav">
+        <a href="#" class="active">Inventory</a>
+        <a href="#">Cashier</a>
+        <a href="#">Kitchen</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        Signed in as Admin
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+    <div class="header">
+        <h1>Inventory</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <section class="cards">
+        <div class="card">
+            <p>Total Items</p>
+            <h2 id="totalItems">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Low stock</p>
+            <h2 class="low-number" id="lowStock">0</h2>
+        </div>
+
+        <div class="card">
+            <p>Out of stock</p>
+            <h2 class="out-number" id="outStock">0</h2>
+        </div>
+    </section>
+
+    <!-- NOTIFICATION -->
+    <div class="alert" id="notification">
+        Checking inventory...
+    </div>
+
+    <!-- SEARCH AND ADD -->
+    <div class="toolbar">
+        <input
+            type="text"
+            class="search"
+            id="searchInput"
+            placeholder="Search item name or category..."
+            oninput="renderInventory()"
+        >
+
+        <button class="add-btn" onclick="openModal()">
+            + Add item
+        </button>
+    </div>
+
+    <!-- INVENTORY TABLE -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Quantity</th>
+                    <th>Min. level</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="inventoryTable"></tbody>
+        </table>
+    </div>
+
+</main>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal" id="itemModal">
+    <div class="modal-content">
+
+        <h2 id="modalTitle">Add Inventory Item</h2>
+
+        <form id="inventoryForm">
+
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="itemName" required>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option>Coffee</option>
+                    <option>Dairy</option>
+                    <option>Supplies</option>
+                    <option>Dry goods</option>
+                    <option>Syrups</option>
+                    <option>Bakery</option>
+                    <option>Others</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="quantity" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label>Unit (kg, L, pcs, btl, etc.)</label>
+                <input type="text" id="unit" placeholder="e.g. kg" required>
+            </div>
+
+            <div class="form-group">
+                <label>Minimum Stock Level</label>
+                <input type="number" id="minimum" min="0" step="0.01" required>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn"
+                    onclick="closeModal()">Cancel</button>
+
+                <button type="submit" class="save-btn">Save Item</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+
+// INITIAL INVENTORY DATA
+const defaultItems = [
+    {id:1, name:"Espresso beans", category:"Coffee", quantity:12, unit:"kg", minimum:5},
+    {id:2, name:"Fresh milk", category:"Dairy", quantity:4, unit:"L", minimum:10},
+    {id:3, name:"Cups 12 oz", category:"Supplies", quantity:0, unit:"pcs", minimum:100},
+    {id:4, name:"Sugar", category:"Dry goods", quantity:8, unit:"kg", minimum:3},
+    {id:5, name:"Vanilla syrup", category:"Syrups", quantity:2, unit:"btl", minimum:4},
+    {id:6, name:"Croissant dough", category:"Bakery", quantity:15, unit:"pcs", minimum:10}
+];
+
+// LOAD SAVED DATA
+let inventory;
+
+try {
+    const saved = localStorage.getItem("kapebalay_inventory");
+    inventory = saved === null ? defaultItems : JSON.parse(saved);
+
+    if (!Array.isArray(inventory)) {
+        inventory = defaultItems.map(item => ({...item}));
+    }
+} catch (error) {
+    inventory = defaultItems.map(item => ({...item}));
+}
+
+let editingId = null;
+
+// SAVE DATA
+function saveData() {
+    localStorage.setItem(
+        "kapebalay_inventory",
+        JSON.stringify(inventory)
+    );
+}
+
+// AUTOMATIC STOCK STATUS
+function getStatus(item) {
+    if (item.quantity <= 0) return "Out of stock";
+    if (item.quantity <= item.minimum) return "Low stock";
+    return "In stock";
+}
+
+// UPDATE DASHBOARD
+function updateDashboard() {
+    const total = inventory.length;
+
+    const low = inventory.filter(
+        item => getStatus(item) === "Low stock"
+    ).length;
+
+    const out = inventory.filter(
+        item => getStatus(item) === "Out of stock"
+    ).length;
+
+    document.getElementById("totalItems").textContent = total;
+    document.getElementById("lowStock").textContent = low;
+    document.getElementById("outStock").textContent = out;
+
+    const needsRestock = inventory.filter(
+        item => getStatus(item) !== "In stock"
+    );
+
+    const alert = document.getElementById("notification");
+
+    if (needsRestock.length === 0) {
+        alert.textContent = "All inventory items have sufficient stock.";
+    } else {
+        alert.textContent =
+            needsRestock.length + " item(s) need restocking: " +
+            needsRestock.map(item => item.name).join(", ") + ".";
+    }
+}
+
+// DISPLAY INVENTORY
+function renderInventory() {
+    const table = document.getElementById("inventoryTable");
+    const search = document.getElementById("searchInput")
+        .value.toLowerCase().trim();
+
+    table.innerHTML = "";
+
+    const filtered = inventory.filter(item =>
+        item.name.toLowerCase().includes(search) ||
+        item.category.toLowerCase().includes(search)
+    );
+
+    if (filtered.length === 0) {
+        table.innerHTML =
+            '<tr><td colspan="6" class="empty">No inventory items found.</td></tr>';
+    }
+
+    filtered.forEach(item => {
+        const status = getStatus(item);
+
+        let statusClass = "in-stock";
+
+        if (status === "Low stock") statusClass = "low-stock";
+        if (status === "Out of stock") statusClass = "out-stock";
+
+        const row = document.createElement("tr");
+
+        const values = [
+            item.name,
+            item.category,
+            item.quantity + " " + item.unit,
+            item.minimum + " " + item.unit
+        ];
+
+        values.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+        });
+
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "status " + statusClass;
+        badge.textContent = status;
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+
+        const actionCell = document.createElement("td");
+        actionCell.className = "actions";
+
+        const edit = document.createElement("button");
+        edit.className = "edit-btn";
+        edit.textContent = "Edit";
+        edit.addEventListener("click", () => editItem(item.id));
+
+        const remove = document.createElement("button");
+        remove.className = "delete-btn";
+        remove.textContent = "Delete";
+        remove.addEventListener("click", () => deleteItem(item.id));
+
+        actionCell.append(edit, remove);
+        row.appendChild(actionCell);
+
+        table.appendChild(row);
+    });
+
+    updateDashboard();
+}
+
+// OPEN MODAL
+function openModal(id = null) {
+    editingId = id;
+
+    document.getElementById("inventoryForm").reset();
+
+    document.getElementById("modalTitle").textContent =
+        id === null ? "Add Inventory Item" : "Edit Inventory Item";
+
+    if (id !== null) {
+        const item = inventory.find(item => item.id === id);
+
+        if (!item) return;
+
+        document.getElementById("itemName").value = item.name;
+        document.getElementById("category").value = item.category;
+        document.getElementById("quantity").value = item.quantity;
+        document.getElementById("unit").value = item.unit;
+        document.getElementById("minimum").value = item.minimum;
+    }
+
+    document.getElementById("itemModal").classList.add("show");
+}
+
+// CLOSE MODAL
+function closeModal() {
+    document.getElementById("itemModal").classList.remove("show");
+    editingId = null;
+}
+
+// ADD OR UPDATE ITEM
+document.getElementById("inventoryForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("itemName").value.trim();
+    const category = document.getElementById("category").value;
+    const quantity = Number(document.getElementById("quantity").value);
+    const unit = document.getElementById("unit").value.trim();
+    const minimum = Number(document.getElementById("minimum").value);
+
+    if (!name || !category || !unit ||
+        !Number.isFinite(quantity) || !Number.isFinite(minimum) ||
+        quantity < 0 || minimum < 0) {
+        alert("Please enter valid inventory information.");
+        return;
+    }
+
+    if (editingId === null) {
+        const newId = inventory.length
+            ? Math.max(...inventory.map(item => item.id)) + 1
+            : 1;
+
+        inventory.push({
+            id: newId,
+            name,
+            category,
+            quantity,
+            unit,
+            minimum
+        });
+
+    } else {
+        const index = inventory.findIndex(
+            item => item.id === editingId
+        );
+
+        if (index !== -1) {
+            inventory[index] = {
+                id: editingId,
+                name,
+                category,
+                quantity,
+                unit,
+                minimum
+            };
+        }
+    }
+
+    saveData();
+    renderInventory();
+    closeModal();
+});
+
+// EDIT ITEM
+function editItem(id) {
+    openModal(id);
+}
+
+// DELETE ITEM
+function deleteItem(id) {
+    const item = inventory.find(item => item.id === id);
+
+    if (!item) return;
+
+    if (confirm("Are you sure you want to delete " + item.name + "?")) {
+        inventory = inventory.filter(item => item.id !== id);
+        saveData();
+        renderInventory();
+    }
+}
+
+// LOGOUT
+function logout() {
+    if (confirm("Are you sure you want to logout?")) {
+        alert("You have logged out.");
+    }
+}
+
+// CLOSE MODAL WHEN CLICKING OUTSIDE
+document.getElementById("itemModal").addEventListener("click", function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// INITIALIZE PAGE
+renderInventory();
+
+</script>
+
+</body>
+</html>
